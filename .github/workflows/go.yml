@@ -68,7 +68,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Build
-        run: go build -v -tags unbound ./cmd/letsdane 
+        run: env CGO_ENABLED=0 go build -v -tags unbound ./cmd/letsdane
       # ... whatever build and packaging steps you need here
       # and finally do an upload!
       - name: Compress action step
