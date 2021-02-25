@@ -48,7 +48,7 @@ jobs:
       - name: Install Dependencies
         if: matrix.config.os == 'macos-latest'
         run: |
-          sudo brew install unbound
+          brew install unbound
       - name: Build
         run: go build -v -tags unbound ./cmd/letsdane 
       # ... whatever build and packaging steps you need here
