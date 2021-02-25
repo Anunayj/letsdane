@@ -45,7 +45,7 @@ jobs:
         run: |
           sudo apt-get install -y libunbound-dev
       - name: Build
-        run: go build -v cmd/letsdane -tags unbound
+        run: go build -v -tags unbound cmd/letsdane 
       # ... whatever build and packaging steps you need here
       # and finally do an upload!
       - name: Compress action step
