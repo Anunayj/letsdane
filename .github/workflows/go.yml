@@ -41,14 +41,32 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.15
+#       - name: Install Dependencies
+#         if: matrix.config.os == 'ubuntu-latest'
+#         run: |
+#           sudo apt-get install -y libunbound-dev
+#       - name: Install Dependencies
+#         if: matrix.config.os == 'macos-latest'
+#         run: |
+#           brew install unbound
       - name: Install Dependencies
-        if: matrix.config.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get install -y libunbound-dev
-      - name: Install Dependencies
-        if: matrix.config.os == 'macos-latest'
-        run: |
-          brew install unbound
+        run: go mod download
+      - name: Caching Dependencies
+        uses: actions/cache@v2
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          # * Build cache (Mac)
+          # * Build cache (Windows)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Build
         run: go build -v -tags unbound ./cmd/letsdane 
       # ... whatever build and packaging steps you need here
@@ -72,7 +90,7 @@ jobs:
           # you like, remember that they need to be different for each platform.
           # You can choose any build matrix parameters. For Rust I use the
           # target triple.
-          asset_name: program-name-${{ matrix.config.os }}
+          asset_name: letsdane-${{ matrix.config.os }}.tar.gz
           # The path to the file you want to upload.
           asset_path: ./letsdane-${{ matrix.config.os }}.tar.gz
           # probably you will need to change it, but most likely you are
