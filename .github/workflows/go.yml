@@ -53,7 +53,7 @@ jobs:
         id: compress
         with:
           command: c
-          cwd: ./cmd/letsdane
+          cwd: ./
           files: |
             ./letsdane
           outPath: letsdane-${{ matrix.config.os }}.tar.gz
@@ -69,7 +69,7 @@ jobs:
           # target triple.
           asset_name: program-name-${{ matrix.config.os }}
           # The path to the file you want to upload.
-          asset_path: ./cmd/letsdane/letsdane-${{ matrix.config.os }}.tar.gz
+          asset_path: ./letsdane-${{ matrix.config.os }}.tar.gz
           # probably you will need to change it, but most likely you are
           # uploading a binary file
           asset_content_type: application/octet-stream
