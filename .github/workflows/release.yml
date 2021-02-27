@@ -1,0 +1,65 @@
+name: Go
+
+on:
+  push: 
+    branches: [ master, auto-release ] #For now
+  workflow_dispatch:
+jobs:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    # Note this. We are going to use that in further jobs.
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+  release_assets:
+    name: Release assets
+    needs: create_release # we need to know the upload URL
+    runs-on: ubuntu-latest # we run many different builds
+    env:
+      DOCKER_BUILDKIT: 1
+    steps:
+      # checkout of cource
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Build!
+      - uses: whoan/docker-build-with-cache-action@v5
+        with:
+          image_name: letsdane-static
+          dockerfile: Dockerfile.static
+          build_extra_args: "-o build/"
+      - name: Compress action step
+        uses: master-atul/tar-action@v1.0.2
+        id: compress
+        with:
+          command: c
+          cwd: ./
+          files: |
+            ./build/letsdane
+          outPath: letsdane-linux.tar.gz
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          # This is how it will be named on the release page. Put hatever name
+          # you like, remember that they need to be different for each platform.
+          # You can choose any build matrix parameters. For Rust I use the
+          # target triple.
+          asset_name: letsdane-linux.tar.gz
+          # The path to the file you want to upload.
+          asset_path: ./letsdane-linux.tar.gz
+          # probably you will need to change it, but most likely you are
+          # uploading a binary file
+          asset_content_type: application/octet-stream
