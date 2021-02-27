@@ -33,7 +33,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Build!
-      - uses: whoan/docker-build-with-cache-action@v5
+        uses: whoan/docker-build-with-cache-action@v5
         with:
           image_name: letsdane-static
           dockerfile: Dockerfile.static
