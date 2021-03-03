@@ -42,7 +42,7 @@ jobs:
       - name: Install unbound
         run: brew install unbound
       - name: Location stuff
-        run: brew ls --verbose unbound
+        run: ls $(brew --prefix)/lib
       - name: hacks
         run: ls $(brew --prefix)
       - name: Build Dane
