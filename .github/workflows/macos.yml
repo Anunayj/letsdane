@@ -45,6 +45,8 @@ jobs:
         run: brew install unbound
       - name: Location stuff
         run: brew ls --verbose unbound
+      - name: hacks
+        run: ls $(brew --prefix)
       - name: Build Dane
         run: | 
              CGO_LDFLAGS="/lib/libunbound.a \
