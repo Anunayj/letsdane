@@ -39,6 +39,8 @@ jobs:
           go-version: 1.15
       - name: Install unbound
         run: brew install unbound
+      - name: Location stuff
+        run: brew ls --verbose unbound
       - name: Build Dane
         run: | 
              CGO_LDFLAGS="/usr/local/opt/unbound/lib/libunbound.a \
