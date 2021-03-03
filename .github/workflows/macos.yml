@@ -7,7 +7,7 @@ on:
 jobs:
   create_release:
     name: Create release
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     # Note this. We are going to use that in further jobs.
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -32,12 +32,20 @@ jobs:
       # checkout of cource
       - name: Checkout code
         uses: actions/checkout@v1
-      - name: Build!
-        uses: whoan/docker-build-with-cache-action@v5
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
         with:
-          image_name: letsdane-static
-          dockerfile: Dockerfile.static
-          build_extra_args: "-o build/"
+          # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+          go-version: 1.15
+      - name: Install unbound
+        run: brew install unbound
+      - name: Build Dane
+        run: | 
+             CGO_LDFLAGS="/usr/local/opt/unbound/lib/libunbound.a \
+             /usr/local/opt/openssl/lib/libssl.a \
+             /usr/local/opt/openssl/lib/libcrypto.a \
+             /usr/local/opt/nghttp2/lib/libnghttp2.a \
+             /usr/local/opt/libevent/lib/libevent.a" go build -tags unbound ./cmd/letsdane
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
@@ -45,8 +53,8 @@ jobs:
           command: c
           cwd: ./
           files: |
-            ./build/letsdane
-          outPath: letsdane-linux.tar.gz
+            ./letsdane
+          outPath: letsdane-macos.tar.gz
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
