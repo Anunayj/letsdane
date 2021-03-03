@@ -36,18 +36,12 @@ jobs:
           # The Go version to download (if necessary) and use. Supports semver spec and ranges.
           go-version: 1.15
       - name: Install unbound
-        run: brew --prefix
-      - name: Install unbound
-        run: brew --cellar
-      - name: Install unbound
         run: brew install unbound
-      - name: Location stuff
-        run: ls $(brew --prefix)/lib
-      - name: hacks
-        run: ls $(brew --prefix)
       - name: Build Dane
         run: | 
              C_INCLUDE_PATH="$(brew --prefix)/include" LIBRARY_PATH="$(brew --prefix)/lib" CGO_LDFLAGS="-Wl,-Bstatic -lunbound -lssl -lcrypto -Wl,-Bdynamic" go build -tags unbound ./cmd/letsdane
+      - name: LDD
+        run: ldd letsdane
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
