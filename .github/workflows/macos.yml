@@ -38,6 +38,10 @@ jobs:
           # The Go version to download (if necessary) and use. Supports semver spec and ranges.
           go-version: 1.15
       - name: Install unbound
+        run: brew --prefix
+      - name: Install unbound
+        run: brew --cellar
+      - name: Install unbound
         run: brew install unbound
       - name: Location stuff
         run: brew ls --verbose unbound
