@@ -39,7 +39,7 @@ jobs:
         run: brew install unbound
       - name: Build Dane
         run: | 
-             C_INCLUDE_PATH="$(brew --prefix)/include" LIBRARY_PATH="$(brew --prefix)/lib" CGO_LDFLAGS="$(brew --prefix)/lib/libunbound.a \
+             C_INCLUDE_PATH="$(brew --prefix)/include" CGO_LDFLAGS="$(brew --prefix)/lib/libunbound.a \
              $(brew --prefix)/lib/libssl.a \
              $(brew --prefix)/lib/libcrypto.a \
              $(brew --prefix)/lib/libnghttp2.a \
