@@ -39,7 +39,7 @@ jobs:
         run: brew install unbound
       - name: Build Dane
         run: | 
-             C_INCLUDE_PATH="$(brew --prefix)/include" LIBRARY_PATH="$(brew --prefix)/lib" go build -tags unbound --ldflags '-extldflags "-lunbound -lssl -lcrypto -static"'
+             C_INCLUDE_PATH="$(brew --prefix)/include" LIBRARY_PATH="$(brew --prefix)/lib" go build -tags unbound --ldflags '-extldflags "-lunbound -lssl -lcrypto -static"' ./cmd/letsdane
       - name: LDD
         run: ldd letsdane
       - name: Compress action step
