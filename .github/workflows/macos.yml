@@ -43,11 +43,11 @@ jobs:
         run: brew ls --verbose unbound
       - name: Build Dane
         run: | 
-             CGO_LDFLAGS="/usr/local/opt/unbound/lib/libunbound.a \
-             /usr/local/opt/openssl/lib/libssl.a \
-             /usr/local/opt/openssl/lib/libcrypto.a \
-             /usr/local/opt/nghttp2/lib/libnghttp2.a \
-             /usr/local/opt/libevent/lib/libevent.a" go build -tags unbound ./cmd/letsdane
+             CGO_LDFLAGS="/lib/libunbound.a \
+             /lib/libssl.a \
+             /lib/libcrypto.a \
+             /lib/libnghttp2.a \
+             /lib/libevent.a" go build -tags unbound ./cmd/letsdane
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
