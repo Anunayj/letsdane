@@ -47,11 +47,7 @@ jobs:
         run: ls $(brew --prefix)
       - name: Build Dane
         run: | 
-             C_INCLUDE_PATH="$(brew --prefix)/include" CGO_LDFLAGS="$(brew --prefix)/lib/libunbound.a \
-             $(brew --prefix)/lib/libssl.a \
-             $(brew --prefix)/lib/libcrypto.a \
-             $(brew --prefix)/lib/libnghttp2.a \
-             $(brew --prefix)/lib/libevent.a" go build -tags unbound ./cmd/letsdane
+             C_INCLUDE_PATH="$(brew --prefix)/include" CGO_LDFLAGS="LDFLAGS=-L$(brew --prefix)/lib -Wl,-Bstatic -lunbound -lssl -lcrypto -Wl,-Bdynamic" go build -tags unbound ./cmd/letsdane
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
