@@ -1,0 +1,69 @@
+name: maccos
+
+on:
+  push: 
+    branches: [ master, auto-release ] #For now
+  workflow_dispatch:
+jobs:
+  create_release:
+    name: Create release
+    runs-on: macos-latest
+    # Note this. We are going to use that in further jobs.
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
+  release_assets:
+    name: Release assets
+    needs: create_release # we need to know the upload URL
+    runs-on: ubuntu-latest # we run many different builds
+    steps:
+      # checkout of cource
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+        with:
+          # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+          go-version: 1.15
+      - name: Install unbound
+        run: brew install unbound
+      - name: Build Dane
+        run: | 
+             C_INCLUDE_PATH="$(brew --prefix)/include" LIBRARY_PATH="$(brew --prefix)/lib" CGO_LDFLAGS="-Wl,-Bstatic -lunbound -lssl -lcrypto -Wl,-Bdynamic" go build -tags unbound ./cmd/letsdane
+      - name: LDD
+        run: ldd letsdane
+      - name: Compress action step
+        uses: master-atul/tar-action@v1.0.2
+        id: compress
+        with:
+          command: c
+          cwd: ./
+          files: |
+            ./letsdane
+          outPath: letsdane-macos.tar.gz
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          # This is how it will be named on the release page. Put hatever name
+          # you like, remember that they need to be different for each platform.
+          # You can choose any build matrix parameters. For Rust I use the
+          # target triple.
+          asset_name: letsdane-macos.tar.gz
+          # The path to the file you want to upload.
+          asset_path: ./letsdane-macos.tar.gz
+          # probably you will need to change it, but most likely you are
+          # uploading a binary file
+          asset_content_type: application/octet-stream

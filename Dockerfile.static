@@ -1,0 +1,26 @@
+FROM golang:alpine AS builder
+RUN apk update && apk add linux-headers gcc make perl musl-dev expat-dev
+
+WORKDIR /tmp
+#Install Openssl
+RUN wget https://www.openssl.org/source/openssl-1.1.1j.tar.gz && tar -xzf openssl-1.1.1j.tar.gz
+WORKDIR /tmp/openssl-1.1.1j
+RUN ./Configure linux-x86_64
+RUN make && make install
+
+WORKDIR /tmp
+#Install Unbound
+RUN wget https://www.nlnetlabs.nl/downloads/unbound/unbound-1.13.1.tar.gz && tar -xzf unbound-1.13.1.tar.gz
+WORKDIR /tmp/unbound-1.13.1
+RUN ./configure
+RUN make
+RUN make install
+
+#Copu stuff
+COPY . /tmp/dane/
+WORKDIR /tmp/dane/cmd/letsdane
+#Build Static
+RUN go build -tags unbound --ldflags '-extldflags "-lunbound -lssl -lcrypto -static"'
+
+FROM scratch
+COPY --from=builder /tmp/dane/cmd/letsdane/letsdane /
